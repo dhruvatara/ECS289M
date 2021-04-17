@@ -17,12 +17,12 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
-import org.w3c.dom.Text;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener{
-
+    boolean recordFlag;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        recordFlag = false;
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -55,8 +55,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         record.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //TODO: Write code to set Flag
-                //TODO: Change text to say stop recording- and unset flag if pressed even times
+                if(recordFlag) {
+                    recordFlag = false;
+                    record.setText(R.string.rec);
+                } else {
+                    recordFlag = true;
+                    record.setText(R.string.stoprec);
+                }
             }
         });
     }
@@ -64,48 +69,65 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onClick(View v) {
         TextView displayNumber = findViewById(R.id.displayNumber);
-        //TODO: check if Flag set
-        switch (v.getId()){
-            case R.id.button0:
-                displayNumber.setText("0");
-                Log.i("press","0");
-                break;
-            case R.id.button1:
-                displayNumber.setText("1");
-                Log.i("press","1");
-                break;
-            case R.id.button2:
-                displayNumber.setText("2");
-                Log.i("press","2");
-                break;
-            case R.id.button3:
-                displayNumber.setText("3");
-                Log.i("press","3");
-                break;
-            case R.id.button4:
-                displayNumber.setText("4");
-                Log.i("press","4");
-                break;
-            case R.id.button5:
-                displayNumber.setText("5");
-                Log.i("press","5");
-                break;
-            case R.id.button6:
-                displayNumber.setText("6");
-                Log.i("press","6");
-                break;
-            case R.id.button7:
-                displayNumber.setText("7");
-                Log.i("press","7");
-                break;
-            case R.id.button8:
-                displayNumber.setText("8");
-                Log.i("press","8");
-                break;
-            case R.id.button9:
-                displayNumber.setText("9");
-                Log.i("press","9");
-                break;
+        if(recordFlag) {
+            String txt = (String) displayNumber.getText();
+            switch (v.getId()) {
+                case R.id.button0:
+                    txt+="0";
+                    displayNumber.setText(txt);
+                    Log.i("press", txt);
+                    break;
+                case R.id.button1:
+                    txt+="1";
+                    displayNumber.setText(txt);
+                    Log.i("press", txt);
+                    break;
+                case R.id.button2:
+                    txt+="2";
+                    displayNumber.setText(txt);
+                    Log.i("press", txt);
+                    break;
+                case R.id.button3:
+                    txt+="3";
+                    displayNumber.setText(txt);
+                    Log.i("press", txt);
+                    break;
+                case R.id.button4:
+                    txt+="4";
+                    displayNumber.setText(txt);
+                    Log.i("press", txt);
+                    break;
+                case R.id.button5:
+                    txt+="5";
+                    displayNumber.setText(txt);
+                    Log.i("press", txt);
+                    break;
+                case R.id.button6:
+                    txt+="6";
+                    displayNumber.setText(txt);
+                    Log.i("press", txt);
+                    break;
+                case R.id.button7:
+                    txt+="7";
+                    displayNumber.setText(txt);
+                    Log.i("press", txt);
+                    break;
+                case R.id.button8:
+                    txt+="8";
+                    displayNumber.setText(txt);
+                    Log.i("press", txt);
+                    break;
+                case R.id.button9:
+                    txt+="9";
+                    displayNumber.setText(txt);
+                    Log.i("press", txt);
+                    break;
+                case R.id.buttonBack:
+                    txt = txt.substring(0,txt.length()-1);
+                    displayNumber.setText(txt);
+                    Log.i("press",txt);
+                    break;
+            }
         }
     }
 

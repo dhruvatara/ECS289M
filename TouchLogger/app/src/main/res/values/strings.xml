@@ -24,4 +24,5 @@
     <string name="dash">-</string>
     <string name="symb">*#(</string>
     <string name="hint">Press a button</string>
+    <string name="stoprec">Stop Recording</string>
 </resources>
