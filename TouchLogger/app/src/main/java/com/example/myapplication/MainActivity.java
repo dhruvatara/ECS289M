@@ -1,5 +1,10 @@
 package com.example.myapplication;
 
+import android.content.Context;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.os.Bundle;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -8,7 +13,9 @@ import com.google.android.material.snackbar.Snackbar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
+import android.os.Environment;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 
 import android.view.Menu;
@@ -17,9 +24,22 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener{
+
+public class MainActivity extends AppCompatActivity implements View.OnTouchListener, SensorEventListener {
     boolean recordFlag;
+    SensorManager sensorManager;
+    Sensor gyroscope;
+    long pressTime = -1l;
+    long relTime = -1l;
+    long gyroTime = -1l;
+    File Path, buttonReadings,  gyroReadings;
+    FileOutputStream buttonOutputStream, gyroOutputStream;
+    String label = "", buttonEntry = "",gyroEntry = "";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         recordFlag = false;
@@ -28,6 +48,34 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         TextView displayNumber = findViewById(R.id.displayNumber);
+        sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+        gyroscope = sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
+        Path = getApplicationContext().getFilesDir();
+        buttonReadings = new File(Path,"button-readings.csv");
+        gyroReadings = new File(Path,"gyro-readings.csv");
+
+        if(!buttonReadings.exists()) {
+            try {
+                buttonReadings.createNewFile();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        if(!gyroReadings.exists()) {
+            try {
+                gyroReadings.createNewFile();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        try {
+            buttonOutputStream = new FileOutputStream(buttonReadings);
+            gyroOutputStream = new FileOutputStream(gyroReadings);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+
         Button b1 = findViewById(R.id.button1);
         Button b2 = findViewById(R.id.button2);
         Button b3 = findViewById(R.id.button3);
@@ -41,23 +89,30 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         ImageButton bBack = findViewById(R.id.buttonBack);
         Button record = findViewById(R.id.buttonRec);
 
-        b1.setOnClickListener(this);
-        b2.setOnClickListener(this);
-        b3.setOnClickListener(this);
-        b4.setOnClickListener(this);
-        b5.setOnClickListener(this);
-        b6.setOnClickListener(this);
-        b7.setOnClickListener(this);
-        b8.setOnClickListener(this);
-        b9.setOnClickListener(this);
-        b0.setOnClickListener(this);
-        bBack.setOnClickListener(this);
+        b1.setOnTouchListener(this);
+        b2.setOnTouchListener(this);
+        b3.setOnTouchListener(this);
+        b4.setOnTouchListener(this);
+        b5.setOnTouchListener(this);
+        b6.setOnTouchListener(this);
+        b7.setOnTouchListener(this);
+        b8.setOnTouchListener(this);
+        b9.setOnTouchListener(this);
+        b0.setOnTouchListener(this);
+        bBack.setOnTouchListener(this);
+
         record.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if(recordFlag) {
                     recordFlag = false;
                     record.setText(R.string.rec);
+                    try {
+                        buttonOutputStream.close();
+                        gyroOutputStream.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 } else {
                     recordFlag = true;
                     record.setText(R.string.stoprec);
@@ -67,69 +122,107 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     @Override
-    public void onClick(View v) {
+    protected void onResume() {
+        super.onResume();
+        sensorManager.registerListener(this,gyroscope,SensorManager.SENSOR_DELAY_NORMAL);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        sensorManager.unregisterListener(this);
+    }
+
+    @Override
+    public boolean onTouch(View v, MotionEvent event) {
         TextView displayNumber = findViewById(R.id.displayNumber);
         if(recordFlag) {
             String txt = (String) displayNumber.getText();
-            switch (v.getId()) {
-                case R.id.button0:
-                    txt+="0";
-                    displayNumber.setText(txt);
-                    Log.i("press", txt);
-                    break;
-                case R.id.button1:
-                    txt+="1";
-                    displayNumber.setText(txt);
-                    Log.i("press", txt);
-                    break;
-                case R.id.button2:
-                    txt+="2";
-                    displayNumber.setText(txt);
-                    Log.i("press", txt);
-                    break;
-                case R.id.button3:
-                    txt+="3";
-                    displayNumber.setText(txt);
-                    Log.i("press", txt);
-                    break;
-                case R.id.button4:
-                    txt+="4";
-                    displayNumber.setText(txt);
-                    Log.i("press", txt);
-                    break;
-                case R.id.button5:
-                    txt+="5";
-                    displayNumber.setText(txt);
-                    Log.i("press", txt);
-                    break;
-                case R.id.button6:
-                    txt+="6";
-                    displayNumber.setText(txt);
-                    Log.i("press", txt);
-                    break;
-                case R.id.button7:
-                    txt+="7";
-                    displayNumber.setText(txt);
-                    Log.i("press", txt);
-                    break;
-                case R.id.button8:
-                    txt+="8";
-                    displayNumber.setText(txt);
-                    Log.i("press", txt);
-                    break;
-                case R.id.button9:
-                    txt+="9";
-                    displayNumber.setText(txt);
-                    Log.i("press", txt);
-                    break;
-                case R.id.buttonBack:
-                    txt = txt.substring(0,txt.length()-1);
-                    displayNumber.setText(txt);
-                    Log.i("press",txt);
-                    break;
+            if(event.getAction() == MotionEvent.ACTION_DOWN){
+                pressTime = System.currentTimeMillis();
+                switch (v.getId()) {
+                    case R.id.button0:
+                        txt+="0";
+                        label = "0";
+                        break;
+                    case R.id.button1:
+                        txt+="1";
+                        label = "1";
+                        break;
+                    case R.id.button2:
+                        txt+="2";
+                        label = "2";
+                        break;
+                    case R.id.button3:
+                        txt+="3";
+                        label = "3";
+                        break;
+                    case R.id.button4:
+                        txt+="4";
+                        label = "4";
+                        break;
+                    case R.id.button5:
+                        txt+="5";
+                        label = "5";
+                        break;
+                    case R.id.button6:
+                        txt+="6";
+                        label = "6";
+                        break;
+                    case R.id.button7:
+                        txt+="7";
+                        label = "7";
+                        break;
+                    case R.id.button8:
+                        txt+="8";
+                        label = "8";
+                        break;
+                    case R.id.button9:
+                        txt+="9";
+                        label = "9";
+                        break;
+                    case R.id.buttonBack:
+                        txt = txt.substring(0,txt.length()-1);
+                        label = "b";
+                        break;
+                }
+                displayNumber.setText(txt);
+            } else if (event.getAction() == MotionEvent.ACTION_UP) {
+                relTime = System.currentTimeMillis();
+                buttonEntry = ""+pressTime+","+relTime+","+label+"\n";
+                Log.i("entry",buttonEntry);
+                try {
+                    buttonOutputStream.write(buttonEntry.getBytes());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+
+        }
+        return false;
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+
+    }
+
+    @Override
+    public void onSensorChanged(SensorEvent event) {
+        if(recordFlag) {
+            gyroTime = System.currentTimeMillis();
+            gyroEntry = "" + gyroTime + "," + event.values[0] + "," + event.values[1] + "," + event.values[2]+"\n";
+            Log.i("gyro", "" + gyroEntry);
+            try {
+                gyroOutputStream.write(gyroEntry.getBytes());
+            } catch (IOException e) {
+                Log.i("gyro", "onSensorChanged: error writing ");
+                e.printStackTrace();
             }
         }
     }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
