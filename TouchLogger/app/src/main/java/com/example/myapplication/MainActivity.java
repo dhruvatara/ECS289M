@@ -119,6 +119,12 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
                 } else {
                     recordFlag = true;
                     record.setText(R.string.stoprec);
+                    try {
+                        buttonOutputStream = new FileWriter(buttonReadings,true);
+                        gyroOutputStream = new FileWriter(gyroReadings,true);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
             }
         });
