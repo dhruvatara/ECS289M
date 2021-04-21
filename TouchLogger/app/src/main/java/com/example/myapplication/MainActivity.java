@@ -27,6 +27,7 @@ import android.widget.TextView;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 
 
@@ -38,7 +39,7 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
     long relTime = -1l;
     long gyroTime = -1l;
     File Path, buttonReadings,  gyroReadings;
-    FileOutputStream buttonOutputStream, gyroOutputStream;
+    FileWriter buttonOutputStream, gyroOutputStream;
     String label = "", buttonEntry = "",gyroEntry = "";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,7 +51,9 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
         TextView displayNumber = findViewById(R.id.displayNumber);
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         gyroscope = sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
-        Path = getApplicationContext().getFilesDir();
+        Path = new File(MainActivity.this.getFilesDir(),"readings");
+        if(!Path.exists())
+            Path.mkdir();
         buttonReadings = new File(Path,"button-readings.csv");
         gyroReadings = new File(Path,"gyro-readings.csv");
 
@@ -70,9 +73,9 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
         }
 
         try {
-            buttonOutputStream = new FileOutputStream(buttonReadings);
-            gyroOutputStream = new FileOutputStream(gyroReadings);
-        } catch (FileNotFoundException e) {
+            buttonOutputStream = new FileWriter(buttonReadings,true);
+            gyroOutputStream = new FileWriter(gyroReadings,true);
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
@@ -192,7 +195,8 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
                 buttonEntry = ""+pressTime+","+relTime+","+label+"\n";
                 Log.i("entry",buttonEntry);
                 try {
-                    buttonOutputStream.write(buttonEntry.getBytes());
+                    buttonOutputStream.append(buttonEntry);
+                    buttonOutputStream.flush();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -215,7 +219,8 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
             gyroEntry = "" + gyroTime + "," + event.values[0] + "," + event.values[1] + "," + event.values[2]+"\n";
             Log.i("gyro", "" + gyroEntry);
             try {
-                gyroOutputStream.write(gyroEntry.getBytes());
+                gyroOutputStream.append(gyroEntry);
+                gyroOutputStream.flush();
             } catch (IOException e) {
                 Log.i("gyro", "onSensorChanged: error writing ");
                 e.printStackTrace();
