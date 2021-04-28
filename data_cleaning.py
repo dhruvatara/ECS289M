@@ -11,6 +11,9 @@ import numpy as np
 def clean_data():
 	file = pd.read_csv(sys.argv[1])
 	# print(file.head())
+	root = sys.argv[1].split("\\")
+	root = root[1]+"\\"+root[2]
+	print(root)
 	#Drop azimuth column
 	cleanFile = file.drop(['gyro(x)'],axis=1)
 	# print(cleanFile.head())
@@ -18,6 +21,7 @@ def clean_data():
 	# print(cleanFile['gyro(y)'][:5])
 	normalize(cleanFile,'gyro(y)')
 	normalize(cleanFile,'gyro(z)')
+	cleanFile.to_csv(root+"\\cleanedGyroReadings.csv")
 	# print(cleanFile['gyro(y)'][:5])
 	# print(yMean)
 
