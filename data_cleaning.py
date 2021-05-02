@@ -35,18 +35,34 @@ def matchup(root,cleanGyro):
 	j = 0
 	k = 0
 	meanGyroY = 0.0
+	minGyroY = 0.0
+	maxGyroY = 0.0
 	meanGyroZ = 0.0
+	minGyroZ = 0.0
+	maxGyroZ = 0.0
 	n = 0
 	# print(gyroTime[9])
 	# print(buttonStart[1])
 	# print(buttonStop[1])
 	while (k<len(gyroTime) and j<len(buttonStop)):
 		# print("here")
+		if (n==0):
+			minGyroY = cleanGyro.iloc[k]['gyro(y)']
+			minGyroZ = cleanGyro.iloc[k]['gyro(z)']
+			maxGyroY = cleanGyro.iloc[k]['gyro(y)']
+			maxGyroZ = cleanGyro.iloc[k]['gyro(z)']
 		if (gyroTime[k] >= buttonStart[j] and gyroTime[k]<=buttonStop[j]):
 			# print("here")
 			meanGyroY += cleanGyro.iloc[k]['gyro(y)']
 			meanGyroZ += cleanGyro.iloc[k]['gyro(z)']
+			if(cleanGyro.iloc[k]['gyro(y)'] < minGyroY):
+				minGyroY = cleanGyro.iloc[k]['gyro(y)']
+				minGyroZ = cleanGyro.iloc[k]['gyro(z)']
+			elif (cleanGyro.iloc[k]['gyro(y)'] > maxGyroY):
+				maxGyroY = cleanGyro.iloc[k]['gyro(y)']
+				maxGyroZ = cleanGyro.iloc[k]['gyro(z)']
 			n+=1
+			# cleanGyro.at[k,'label'] = buttonPress.iloc[j]['label']
 		elif(gyroTime[k]>buttonStop[j] and n>0):
 
 			meanGyroY /= n
@@ -54,14 +70,24 @@ def matchup(root,cleanGyro):
 			# print(meanGyroY)
 			buttonPress.at[j,'mean gyro(y)'] = meanGyroY
 			buttonPress.at[j,'mean gyro(z)'] = meanGyroZ
+			buttonPress.at[j,'max gyro(y)'] = maxGyroY
+			buttonPress.at[j,'max gyro(z)'] = maxGyroZ
+			buttonPress.at[j,'min gyro(y)'] = minGyroY
+			buttonPress.at[j,'min gyro(z)'] = minGyroZ
 			n = 0
+			meanGyroY = 0.0
+			minGyroY = 0.0
+			maxGyroY = 0.0
+			meanGyroZ = 0.0
+			minGyroZ = 0.0
+			maxGyroZ = 0.0
 			j+=1
 			k-=1
 		elif(gyroTime[k]>buttonStart[j]):
 			j+=1
 			k-=1
 		k+=1
-	buttonPress.to_csv(root+"\\combinedReadings.csv")
+	buttonPress.to_csv(root+"\\features.csv")
 
 
 def normalize(data,column):
