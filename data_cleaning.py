@@ -15,14 +15,15 @@ def clean_data():
 	root = root[1]+"\\"+root[2]
 	# print(root)
 	#Drop azimuth column
-	cleanFile = file.drop(['gyro(x)'],axis=1)
-	# print(cleanFile.head())
+	file.columns = ['timestamp','beta','gamma','alpha']
+	cleanFile = file.drop(['alpha'],axis=1)
+	print(cleanFile.head())
 	
 	# print(cleanFile['gyro(y)'][:5])
-	normalize(cleanFile,'gyro(y)')
-	normalize(cleanFile,'gyro(z)')
+	normalize(cleanFile,'beta')
+	normalize(cleanFile,'gamma')
 	matchup(root,cleanFile)
-	cleanFile.to_csv(root+"\\cleanedGyroReadings.csv")
+	# cleanFile.to_csv(root+"\\cleanedGyroReadings.csv")
 	# print(cleanFile['gyro(y)'][:5])
 	# print(yMean)
 
@@ -34,12 +35,15 @@ def matchup(root,cleanGyro):
 	
 	j = 0
 	k = 0
-	meanGyroY = 0.0
-	minGyroY = 0.0
-	maxGyroY = 0.0
-	meanGyroZ = 0.0
-	minGyroZ = 0.0
-	maxGyroZ = 0.0
+	meanBeta = 0.0
+	minBeta = 0.0
+	maxBeta = 0.0
+	meanGamma = 0.0
+	minGamma = 0.0
+	maxGamma = 0.0
+	maxDistUp = 0.0
+	maxDistDown = 0.0
+	dist = 0.0
 	n = 0
 	# print(gyroTime[9])
 	# print(buttonStart[1])
@@ -47,40 +51,54 @@ def matchup(root,cleanGyro):
 	while (k<len(gyroTime) and j<len(buttonStop)):
 		# print("here")
 		if (n==0):
-			minGyroY = cleanGyro.iloc[k]['gyro(y)']
-			minGyroZ = cleanGyro.iloc[k]['gyro(z)']
-			maxGyroY = cleanGyro.iloc[k]['gyro(y)']
-			maxGyroZ = cleanGyro.iloc[k]['gyro(z)']
+
+			minBeta = cleanGyro.iloc[k]['beta']
+			minGamma= cleanGyro.iloc[k]['gamma']
+			maxBeta = cleanGyro.iloc[k]['beta']
+			maxGamma = cleanGyro.iloc[k]['gamma']
+			maxDistUp = 0.0
+			maxDistDown = 0.0
+			dist = 0.0
+			# maxSlopeUp = (maxBeta**2/maxGamma**2)**0.5
 		if (gyroTime[k] >= buttonStart[j] and gyroTime[k]<=buttonStop[j]):
 			# print("here")
-			meanGyroY += cleanGyro.iloc[k]['gyro(y)']
-			meanGyroZ += cleanGyro.iloc[k]['gyro(z)']
-			if(cleanGyro.iloc[k]['gyro(y)'] < minGyroY):
-				minGyroY = cleanGyro.iloc[k]['gyro(y)']
-				minGyroZ = cleanGyro.iloc[k]['gyro(z)']
-			elif (cleanGyro.iloc[k]['gyro(y)'] > maxGyroY):
-				maxGyroY = cleanGyro.iloc[k]['gyro(y)']
-				maxGyroZ = cleanGyro.iloc[k]['gyro(z)']
+			meanBeta += cleanGyro.iloc[k]['beta']
+			meanGamma += cleanGyro.iloc[k]['gamma']
+			dist = (cleanGyro.iloc[k]['beta']**2+cleanGyro.iloc[k]['gamma']**2)**0.5
+			if(cleanGyro.iloc[k]['beta'] < 0 and dist > maxDistDown):
+				minBeta = cleanGyro.iloc[k]['beta']
+				minGamma = cleanGyro.iloc[k]['gamma']
+				maxDistDown = dist
+			elif (cleanGyro.iloc[k]['beta'] > 0 and dist > maxDistUp):
+				maxBeta = cleanGyro.iloc[k]['beta']
+				maxGamma = cleanGyro.iloc[k]['gamma']
+				maxDistUp = dist
 			n+=1
 			# cleanGyro.at[k,'label'] = buttonPress.iloc[j]['label']
 		elif(gyroTime[k]>buttonStop[j] and n>0):
 
-			meanGyroY /= n
-			meanGyroZ /= n
+			meanBeta /= n
+			meanGamma /= n
+			buttonPress.at[j,'max beta'] = maxBeta
+			buttonPress.at[j,'max gamma'] = maxGamma
+			buttonPress.at[j,'min beta'] = minBeta
+			buttonPress.at[j,'min gamma'] = minGamma
+			
 			# print(meanGyroY)
-			buttonPress.at[j,'mean gyro(y)'] = meanGyroY
-			buttonPress.at[j,'mean gyro(z)'] = meanGyroZ
-			buttonPress.at[j,'max gyro(y)'] = maxGyroY
-			buttonPress.at[j,'max gyro(z)'] = maxGyroZ
-			buttonPress.at[j,'min gyro(y)'] = minGyroY
-			buttonPress.at[j,'min gyro(z)'] = minGyroZ
+			if(n == 1):
+				buttonPress.at[j,'mean beta'] = 0.0
+				buttonPress.at[j,'mean gamma'] = 0.0
+			else:
+				buttonPress.at[j,'mean beta'] = meanBeta
+				buttonPress.at[j,'mean gamma'] = meanGamma
+			
 			n = 0
-			meanGyroY = 0.0
-			minGyroY = 0.0
-			maxGyroY = 0.0
-			meanGyroZ = 0.0
-			minGyroZ = 0.0
-			maxGyroZ = 0.0
+			meanBeta = 0.0
+			minBeta = 0.0
+			maxBeta = 0.0
+			meanGamma = 0.0
+			minGamma = 0.0
+			maxGamma = 0.0
 			j+=1
 			k-=1
 		elif(gyroTime[k]>buttonStart[j]):
@@ -92,7 +110,9 @@ def matchup(root,cleanGyro):
 
 def normalize(data,column):
 	#Normalize gyroscope readings
+	print(column)
 	mean = np.mean(data[column])
+	print(mean)
 	data[column] = [i-mean for i in data[column]]
 
 clean_data()
