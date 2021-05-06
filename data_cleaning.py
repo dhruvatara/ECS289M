@@ -105,7 +105,7 @@ def matchup(root,cleanGyro):
 			j+=1
 			k-=1
 		k+=1
-	buttonPress.to_csv(root+"\\features.csv")
+	buttonPress.to_csv(root+"\\cleanData.csv",index=False)
 
 
 def normalize(data,column):
@@ -115,4 +115,5 @@ def normalize(data,column):
 	print(mean)
 	data[column] = [i-mean for i in data[column]]
 
-clean_data()
+if __name__ == '__main__':
+	clean_data()
