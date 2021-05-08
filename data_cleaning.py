@@ -9,10 +9,11 @@ import sys
 import pandas as pd
 import numpy as np
 def clean_data():
-	file = pd.read_csv(sys.argv[1])
+	root = sys.argv[1]
+	path = root+"\\gyro-readings.csv"
+	file = pd.read_csv(path)
 	# print(file.head())
-	root = sys.argv[1].split("\\")
-	root = root[1]+"\\"+root[2]
+	
 	# print(root)
 	#Drop azimuth column
 	file.columns = ['timestamp','beta','gamma','alpha']

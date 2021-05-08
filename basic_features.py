@@ -7,9 +7,8 @@ import pandas as pd
 import sys
 import math
 def find_basic_features():
-	file = pd.read_csv(sys.argv[1])
-	root = sys.argv[1].split("\\")
-	root = root[1]+"\\"+root[2]
+	root = sys.argv[1]
+	file = pd.read_csv(root+"\\cleanData.csv")
 	# print(file.head())
 	file['AUB'] = [0.0 for _ in range(len(file))]
 	file['ALB'] = [0.0 for _ in range(len(file))]
