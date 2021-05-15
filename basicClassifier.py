@@ -1,5 +1,5 @@
 '''
-script to train, test and validate a gaussian naive bayes classifier
+script to train, test and validate different classifiers
 '''
 import sys
 import pandas as pd
@@ -15,7 +15,8 @@ def main():
 	# print(path)
 	data = pd.read_csv(path)
 	# print(data.head())
-	X = data.drop(['label','pressStart','pressStop'],axis=1)
+	X = data[['AUB','ALB']]
+	print(X.head())
 	Y = data['label']
 	xtrain,xtest,ytrain,ytest = train_test_split(X,Y,test_size=0.3)
 	nbClassifier = GaussianNB().fit(xtrain,ytrain)
