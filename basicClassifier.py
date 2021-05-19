@@ -15,7 +15,7 @@ def main():
 	# print(path)
 	data = pd.read_csv(path)
 	# print(data.head())
-	X = data[['AUB','ALB']]
+	X = data[['max beta','max gamma']]
 	print(X.head())
 	Y = data['label']
 	xtrain,xtest,ytrain,ytest = train_test_split(X,Y,test_size=0.3)

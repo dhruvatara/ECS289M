@@ -13,7 +13,7 @@ def main():
 	path = root+'\\basicFeatures.csv'
 	# print(path)
 	data = pd.read_csv(path)
-	X = data[['AUB','ALB']]
+	X = data[['max beta','max gamma']]
 	Y = data['label']
 	print(X.shape)
 	print(Y.shape)
@@ -23,9 +23,10 @@ def main():
 	model.add(Dense(8,input_shape=(2,),activation='relu'))
 	# model.add(Dense(16))
 	model.add(Dense(10,activation='softmax'))
-	model.compile(optimizer='sgd',metrics=['accuracy','precision','recall'])
+	model.compile(loss='categorical_crossentropy',optimizer='sgd',metrics=['accuracy','precision','recall'])
 	# print(tf.keras.utils.plot_model(model))
-	model.fit(X,Y)
+	model.fit(xtrain,ytrain,
+		epochs=2)
 
 if __name__ == '__main__':
 	main()
