@@ -15,6 +15,7 @@ import androidx.appcompat.widget.Toolbar;
 
 import android.os.Environment;
 import android.util.Log;
+import android.view.HapticFeedbackConstants;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -148,6 +149,7 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
         if(recordFlag) {
             String txt = (String) displayNumber.getText();
             if(event.getAction() == MotionEvent.ACTION_DOWN){
+                v.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY,HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING);
                 pressTime = System.currentTimeMillis();
                 switch (v.getId()) {
                     case R.id.button0:

@@ -30,6 +30,7 @@ def clean_data():
 
 def matchup(root,cleanGyro):
 	buttonPress = pd.read_csv(root+"\\button-readings.csv")
+	buttonPress.columns = ['pressStart','pressStop','label']
 	gyroTime = cleanGyro['timestamp']
 	buttonStart = buttonPress['pressStart']
 	buttonStop = buttonPress['pressStop']
